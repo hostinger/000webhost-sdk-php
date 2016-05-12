@@ -1,0 +1,15 @@
+{
+    "name": "hostinger/000webhost-sdk-api",
+    "version": "1.0.0",
+    "description": "000webhost API",
+    "require": {
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "WebhostApi": "",
+            "WebhostApiException": ""
+        }
+    }
+}
