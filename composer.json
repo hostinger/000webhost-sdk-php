@@ -1,5 +1,5 @@
 {
-    "name": "hostinger/000webhost-sdk-api",
+    "name": "hostinger/000webhost-sdk-php",
     "version": "1.0.0",
     "description": "000webhost API",
     "require": {
