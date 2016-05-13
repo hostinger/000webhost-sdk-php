@@ -37,7 +37,7 @@ class WebhostApi
             'rating'    => $rating
         ];
 
-        return $this->make_call('review/'.$domain, 'POST', $params);
+        return $this->make_call('/v1/review/'.$domain, 'POST', $params);
     }
 
     /**
@@ -54,7 +54,7 @@ class WebhostApi
             'to' => $emailsTo
         ];
 
-        return $this->make_call('/recommend', 'POST', $params);
+        return $this->make_call('/v1/recommend', 'POST', $params);
     }
 
     /**
@@ -73,7 +73,7 @@ class WebhostApi
             'message' => $message
         ];
 
-        return $this->make_call('/report-abuse', 'POST', $params);
+        return $this->make_call('/v1/report-abuse', 'POST', $params);
     }
 
     /**
@@ -87,7 +87,7 @@ class WebhostApi
             'email' => $email,
             'password' => $password
         ];
-        return $this->make_call('/user/login', 'POST', $params);
+        return $this->make_call('/v1/user/login', 'POST', $params);
     }
 
     /**
@@ -101,7 +101,7 @@ class WebhostApi
             'email' => $email,
             'password' => $password
         ];
-        return $this->make_call('/affiliate/login', 'POST', $params);
+        return $this->make_call('/v1/affiliate/login', 'POST', $params);
     }
 
     /**
@@ -123,7 +123,7 @@ class WebhostApi
             'domain'        => $domain,
             'subdomain'     => $subdomain,
         ];
-        return $this->make_call('/user/signup','POST',$params);
+        return $this->make_call('/v1/user/signup','POST',$params);
     }
 
     /**
@@ -139,7 +139,7 @@ class WebhostApi
             'email'                => $email,
             'password'             => $password,
         ];
-        return $this->make_call('/affiliate/signup','POST',$params);
+        return $this->make_call('/v1/affiliate/signup','POST',$params);
     }
 
     /**
