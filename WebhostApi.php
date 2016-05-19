@@ -37,7 +37,7 @@ class WebhostApi
             'rating'    => $rating
         ];
 
-        return $this->make_call('/v1/review/'.$domain, 'POST', $params);
+        return $this->make_call('/content/review/'.$domain, 'POST', $params);
     }
 
     /**
@@ -54,7 +54,7 @@ class WebhostApi
             'to' => $emailsTo
         ];
 
-        return $this->make_call('/v1/recommend', 'POST', $params);
+        return $this->make_call('/content/recommend', 'POST', $params);
     }
 
     /**
@@ -73,7 +73,7 @@ class WebhostApi
             'message' => $message
         ];
 
-        return $this->make_call('/v1/report-abuse', 'POST', $params);
+        return $this->make_call('/content/report-abuse', 'POST', $params);
     }
 
     /**
@@ -87,7 +87,7 @@ class WebhostApi
             'email' => $email,
             'password' => $password
         ];
-        return $this->make_call('/v1/user/login', 'POST', $params);
+        return $this->make_call('/user/login', 'POST', $params);
     }
 
     /**
@@ -101,7 +101,7 @@ class WebhostApi
             'email' => $email,
             'password' => $password
         ];
-        return $this->make_call('/v1/affiliate/login', 'POST', $params);
+        return $this->make_call('/affiliate/login', 'POST', $params);
     }
 
     /**
@@ -123,7 +123,7 @@ class WebhostApi
             'domain'        => $domain,
             'subdomain'     => $subdomain,
         ];
-        return $this->make_call('/v1/user/signup','POST',$params);
+        return $this->make_call('/user/signup','POST',$params);
     }
 
     /**
@@ -139,7 +139,7 @@ class WebhostApi
             'email'                => $email,
             'password'             => $password,
         ];
-        return $this->make_call('/v1/affiliate/signup','POST',$params);
+        return $this->make_call('/affiliate/signup','POST',$params);
     }
 
     /**
@@ -169,11 +169,8 @@ class WebhostApi
     private function make_call($cmd, $method = 'GET', $post_fields = array())
     {
         $result = $this->get_url($this->api_url.$cmd, $method, $post_fields, $this->username, $this->password);
-        $result = json_decode($result, 1);
-        if (isset($result['error']['message']) && !empty($result['error']['message'])) {
-            throw new WebhostApiException($result['error']['message']);
-        }
-        return $result['result'];
+        $result['data'] = json_decode($result['data'],1);
+        return $result;
     }
 
     /**
@@ -204,7 +201,7 @@ class WebhostApi
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, false);
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -234,7 +231,20 @@ class WebhostApi
             curl_close($ch);
             throw new WebhostApiException("Request error: " . $error);
         }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        return $data;
+
+        switch($httpCode){
+            case 401:
+                throw new WebhostApiException("API authentication failed. HTTP status code: 401");
+            case 500:
+                throw new WebhostApiException("API endpoint encountered an error. HTTP status code: 500");
+        }
+
+        return [
+            'data'  => $data,
+            'code'  => $httpCode
+        ];
     }
 }
