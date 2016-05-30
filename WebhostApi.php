@@ -58,6 +58,22 @@ class WebhostApi
     }
 
     /**
+     * @param $email
+     * @param $name
+     * @param $message
+     * @return array
+     */
+    public function contact($email, $name, $message){
+        $params = [
+            'name' => $name,
+            'email' => $email,
+            'message' => $message
+        ];
+
+        return $this->make_call('/content/contact', 'POST', $params);
+    }
+
+    /**
      * @param $url
      * @param $name
      * @param $email
@@ -140,6 +156,70 @@ class WebhostApi
             'password'             => $password,
         ];
         return $this->make_call('/affiliate/signup','POST',$params);
+    }
+
+    /**
+     * @param $email
+     * @return array
+     * @throws WebhostApiException
+     */
+    public function createUserPasswordResetToken($email){
+        return $this->make_call('/user/password-reset','POST',[
+            'email'     => $email
+        ]);
+    }
+
+    /**
+     * @param $email
+     * @return array
+     * @throws WebhostApiException
+     */
+    public function createAffiliatePasswordResetToken($email){
+        return $this->make_call('/affiliate/password-reset','POST',[
+            'email'     => $email
+        ]);
+    }
+
+    /**
+     * @param $token
+     * @return array
+     * @throws WebhostApiException
+     */
+    public function getUserIdByPasswordResetToken($token){
+        return $this->make_call('/user/password-reset/'.$token,'GET');
+    }
+
+    /**
+     * @param $token
+     * @return array
+     * @throws WebhostApiException
+     */
+    public function getAffiliateIdByPasswordResetToken($token){
+        return $this->make_call('/affiliate/password-reset/'.$token,'GET');
+    }
+
+    /**
+     * @param $token
+     * @param $newPassword
+     * @return array
+     * @throws WebhostApiException
+     */
+    public function resetUserPassword($token, $newPassword){
+        return $this->make_call('/user/password-reset/'.$token,'POST',[
+            'password' => $newPassword
+        ]);
+    }
+
+    /**
+     * @param $token
+     * @param $newPassword
+     * @return array
+     * @throws WebhostApiException
+     */
+    public function resetAffiliatePassword($token, $newPassword){
+        return $this->make_call('/affiliate/password-reset/'.$token,'POST',[
+            'password' => $newPassword
+        ]);
     }
 
     /**
