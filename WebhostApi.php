@@ -223,6 +223,14 @@ class WebhostApi
     }
 
     /**
+     * @return array
+     * @throws WebhostApiException
+     */
+    public function getActiveServer(){
+        return $this->make_call('/server/active','GET');
+    }
+
+    /**
      * @return string
      */
     private function getIp()
