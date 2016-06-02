@@ -127,10 +127,11 @@ class WebhostApi
      * @param $domainType
      * @param $domain
      * @param $subdomain
+     * @param int $affiliate_id
      * @return array
      * @throws WebhostApiException
      */
-    public function userSignup($name, $email, $password, $domainType, $domain, $subdomain){
+    public function userSignup($name, $email, $password, $domainType, $domain, $subdomain, $affiliate_id = 0){
         $params = [
             'name'          => $name,
             'email'         => $email,
@@ -138,6 +139,7 @@ class WebhostApi
             'domain_type'   => $domainType,
             'domain'        => $domain,
             'subdomain'     => $subdomain,
+            'affiliate_id'  => $affiliate_id,
         ];
         return $this->make_call('/user/signup','POST',$params);
     }
