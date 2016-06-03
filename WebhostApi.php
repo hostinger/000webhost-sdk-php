@@ -162,23 +162,27 @@ class WebhostApi
 
     /**
      * @param $email
+     * @param $urlPattern
      * @return array
      * @throws WebhostApiException
      */
-    public function createUserPasswordResetToken($email){
+    public function createUserPasswordResetToken($email,$urlPattern){
         return $this->make_call('/user/password-reset','POST',[
-            'email'     => $email
+            'email'         => $email,
+            'url_pattern'   => $urlPattern,
         ]);
     }
 
     /**
      * @param $email
+     * @param $urlPattern
      * @return array
      * @throws WebhostApiException
      */
-    public function createAffiliatePasswordResetToken($email){
+    public function createAffiliatePasswordResetToken($email,$urlPattern){
         return $this->make_call('/affiliate/password-reset','POST',[
-            'email'     => $email
+            'email'         => $email,
+            'url_pattern'   => $urlPattern,
         ]);
     }
 
