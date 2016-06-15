@@ -301,6 +301,7 @@ class WebhostApi
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: '.$this->getIp()]);
 
         if ($user && $password) {
             curl_setopt($ch, CURLOPT_USERPWD, "$user:$password");
