@@ -332,9 +332,9 @@ class WebhostApi
 
         switch($httpCode){
             case 401:
-                throw new WebhostApiException("API authentication failed. HTTP status code: 401");
+                throw new WebhostApiException("API authentication failed. HTTP status code: 401", $data);
             case 500:
-                throw new WebhostApiException("API endpoint encountered an error. HTTP status code: 500");
+                throw new WebhostApiException("API endpoint encountered an error. HTTP status code: 500", $data);
         }
 
         return [
