@@ -95,13 +95,14 @@ class WebhostApi
     /**
      * @param $email
      * @param $password
+     * @param $fingerprint
      * @return array
-     * @throws WebhostApiException
      */
-    public function userLogin($email, $password){
+    public function userLogin($email, $password, $fingerprint){
         $params = [
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'fingerprint' => $fingerprint,
         ];
         return $this->make_call('/user/login', 'POST', $params);
     }
