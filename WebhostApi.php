@@ -96,13 +96,15 @@ class WebhostApi
      * @param $email
      * @param $password
      * @param $fingerprint
+     * @param $impersonationToken
      * @return array
      */
-    public function userLogin($email, $password, $fingerprint){
+    public function userLogin($email, $password, $fingerprint, $impersonationToken = null){
         $params = [
             'email' => $email,
             'password' => $password,
             'fingerprint' => $fingerprint,
+            'impersonation_token' => $impersonationToken,
         ];
         return $this->make_call('/user/login', 'POST', $params);
     }
