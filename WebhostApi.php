@@ -96,15 +96,17 @@ class WebhostApi
      * @param $email
      * @param $password
      * @param $fingerprint
+     * @param string $language
      * @param $impersonationToken
      * @return array
      */
-    public function userLogin($email, $password, $fingerprint, $impersonationToken = null){
+    public function userLogin($email, $password, $fingerprint, $language = 'en', $impersonationToken = null){
         $params = [
             'email' => $email,
             'password' => $password,
             'fingerprint' => $fingerprint,
             'impersonation_token' => $impersonationToken,
+            'language' => $language,
         ];
         return $this->make_call('/user/login', 'POST', $params);
     }
@@ -132,9 +134,10 @@ class WebhostApi
      * @param $subdomain
      * @param int $affiliate_id
      * @param string $fingerprint
+     * @param string $language
      * @return array
      */
-    public function userSignup($name, $email, $password, $domainType, $domain, $subdomain, $affiliate_id = 0, $fingerprint = 'nojs'){
+    public function userSignup($name, $email, $password, $domainType, $domain, $subdomain, $affiliate_id = 0, $fingerprint = 'nojs', $language = 'en'){
         $params = [
             'name'          => $name,
             'email'         => $email,
@@ -144,6 +147,7 @@ class WebhostApi
             'subdomain'     => $subdomain,
             'affiliate_id'  => $affiliate_id,
             'fingerprint'   => $fingerprint,
+            'language'      => $language
         ];
         return $this->make_call('/user/signup','POST',$params);
     }
