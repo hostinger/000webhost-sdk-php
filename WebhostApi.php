@@ -5,6 +5,7 @@ class WebhostApi
     protected $username = '';
     protected $password = '';
     protected $api_url = '';
+    private $customFields = [];
 
     /**
      * $config['username'] string
@@ -21,6 +22,14 @@ class WebhostApi
     }
 
     /**
+     * Add custom fields that will be merged to each API call
+     * @param $values
+     */
+    public function addCustomFields($values){
+        $this->customFields = array_merge($this->customFields, $values);
+    }
+
+    /**
      * @param $domain
      * @param $review
      * @param $name
@@ -30,12 +39,12 @@ class WebhostApi
      * @throws WebhostApiException
      */
     public function reviewCreate($domain, $review, $name, $email, $rating){
-        $params = [
+        $params = array_merge([
             'review'    => $review,
             'name'      => $name,
             'email'     => $email,
             'rating'    => $rating
-        ];
+        ], $this->customFields);
 
         return $this->make_call('/content/review/'.$domain, 'POST', $params);
     }
@@ -48,11 +57,11 @@ class WebhostApi
      * @throws WebhostApiException
      */
     public function recommend($name, $emailFrom, $emailsTo){
-        $params = [
+        $params = array_merge([
             'name' => $name,
             'email' => $emailFrom,
             'to' => $emailsTo
-        ];
+        ], $this->customFields);
 
         return $this->make_call('/content/recommend', 'POST', $params);
     }
@@ -64,11 +73,11 @@ class WebhostApi
      * @return array
      */
     public function contact($email, $name, $message){
-        $params = [
+        $params = array_merge([
             'name' => $name,
             'email' => $email,
             'message' => $message
-        ];
+        ], $this->customFields);
 
         return $this->make_call('/content/contact', 'POST', $params);
     }
@@ -82,12 +91,12 @@ class WebhostApi
      * @throws WebhostApiException
      */
     public function reportAbuse($url, $name, $email, $message){
-        $params = [
+        $params = array_merge([
             'url' => $url,
             'name' => $name,
             'email' => $email,
             'message' => $message
-        ];
+        ], $this->customFields);
 
         return $this->make_call('/content/report-abuse', 'POST', $params);
     }
@@ -96,18 +105,16 @@ class WebhostApi
      * @param $email
      * @param $password
      * @param $fingerprint
-     * @param string $language
      * @param $impersonationToken
      * @return array
      */
-    public function userLogin($email, $password, $fingerprint, $language = 'en', $impersonationToken = null){
-        $params = [
+    public function userLogin($email, $password, $fingerprint, $impersonationToken = null){
+        $params = array_merge([
             'email' => $email,
             'password' => $password,
             'fingerprint' => $fingerprint,
-            'impersonation_token' => $impersonationToken,
-            'language' => $language,
-        ];
+            'impersonation_token' => $impersonationToken
+        ], $this->customFields);
         return $this->make_call('/user/login', 'POST', $params);
     }
 
@@ -118,10 +125,10 @@ class WebhostApi
      * @throws WebhostApiException
      */
     public function affiliateLogin($email, $password){
-        $params = [
+        $params = array_merge([
             'email' => $email,
             'password' => $password
-        ];
+        ], $this->customFields);
         return $this->make_call('/affiliate/login', 'POST', $params);
     }
 
@@ -134,11 +141,10 @@ class WebhostApi
      * @param $subdomain
      * @param int $affiliate_id
      * @param string $fingerprint
-     * @param string $language
      * @return array
      */
-    public function userSignup($name, $email, $password, $domainType, $domain, $subdomain, $affiliate_id = 0, $fingerprint = 'nojs', $language = 'en'){
-        $params = [
+    public function userSignup($name, $email, $password, $domainType, $domain, $subdomain, $affiliate_id = 0, $fingerprint = 'nojs'){
+        $params = array_merge([
             'name'          => $name,
             'email'         => $email,
             'password'      => $password,
@@ -146,9 +152,8 @@ class WebhostApi
             'domain'        => $domain,
             'subdomain'     => $subdomain,
             'affiliate_id'  => $affiliate_id,
-            'fingerprint'   => $fingerprint,
-            'language'      => $language
-        ];
+            'fingerprint'   => $fingerprint
+        ], $this->customFields);
         return $this->make_call('/user/signup','POST',$params);
     }
 
@@ -160,11 +165,11 @@ class WebhostApi
      * @throws WebhostApiException
      */
     public function affiliateSignup($name,$email,$password){
-        $params = [
+        $params = array_merge([
             'name'                 => $name,
             'email'                => $email,
             'password'             => $password,
-        ];
+        ], $this->customFields);
         return $this->make_call('/affiliate/signup','POST',$params);
     }
 
@@ -188,10 +193,10 @@ class WebhostApi
      * @throws WebhostApiException
      */
     public function createAffiliatePasswordResetToken($email,$urlPattern){
-        return $this->make_call('/affiliate/password-reset','POST',[
+        return $this->make_call('/affiliate/password-reset','POST',array_merge([
             'email'         => $email,
             'url_pattern'   => $urlPattern,
-        ]);
+        ], $this->customFields));
     }
 
     /**
@@ -271,6 +276,7 @@ class WebhostApi
     private function make_call($cmd, $method = 'GET', $post_fields = array())
     {
         $result = $this->get_url($this->api_url.$cmd, $method, $post_fields, $this->username, $this->password);
+        $this->customFields = [];
         $result['data'] = json_decode($result['data'],1);
         return $result;
     }
