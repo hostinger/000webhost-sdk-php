@@ -2,358 +2,217 @@
 
 class WebhostApi
 {
-    protected $username = '';
-    protected $password = '';
-    protected $api_url = '';
-    private $customFields = [];
+
+    private $client;
+    private $options = [];
+
+    private $ip;
+    private $host = 'www.000webhost.com';
+    private $language = 'en-us';
 
     /**
-     * $config['username'] string
-     * $config['password'] string
-     * $config['api_url']  string Must end with '/'
-     *
-     * @param array $config (See above)
+     * RestApi constructor.
+     * @param array $credentials
      */
-    public function __construct($config)
+    public function __construct(array $credentials)
     {
-        $this->username = $config['username'];
-        $this->password = $config['password'];
-        $this->api_url = $config['api_url'];
+        $this->client = new \GuzzleHttp\Client();
+
+        $this->options = [
+            'base_uri' => $credentials['api_url'],
+            'http_errors' => false,
+            'timeout' => 30,
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [
+                $credentials['username'],
+                $credentials['password'],
+            ],
+            'json' => [
+                'client_id' => $credentials['oauth_client_id'],
+                'client_secret' => $credentials['oauth_client_secret'],
+            ],
+        ];
+    }
+
+    /**
+     * Sets the client IP
+     * @param $ip
+     * @return $this
+     */
+    public function setClientIp($ip)
+    {
+        $this->ip = $ip;
+        return $this;
+    }
+
+    /**
+     * Sends the origin host
+     * @param $host
+     * @return $this
+     */
+    public function setHost($host)
+    {
+        $this->host = $host;
+        return $this;
+    }
+
+    /**
+     * Sets the origin language
+     * @param $language
+     * @return $this
+     */
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+        return $this;
     }
 
     /**
      * Add custom fields that will be merged to each API call
      * @param $values
      */
-    public function addCustomFields($values){
-        $this->customFields = array_merge($this->customFields, $values);
+    public function addCustomFields($values)
+    {
+        $this->options = array_merge_recursive($this->options, [
+            'json' => $values,
+        ]);
     }
 
     /**
-     * @param $domain
-     * @param $review
-     * @param $name
-     * @param $email
-     * @param $rating
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function reviewCreate($domain, $review, $name, $email, $rating){
-        $params = array_merge([
-            'review'    => $review,
-            'name'      => $name,
-            'email'     => $email,
-            'rating'    => $rating
-        ], $this->customFields);
-
-        return $this->make_call('/content/review/'.$domain, 'POST', $params);
-    }
-
-    /**
-     * @param $name
-     * @param $emailFrom
-     * @param $emailsTo
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function recommend($name, $emailFrom, $emailsTo){
-        $params = array_merge([
-            'name' => $name,
-            'email' => $emailFrom,
-            'to' => $emailsTo
-        ], $this->customFields);
-
-        return $this->make_call('/content/recommend', 'POST', $params);
-    }
-
-    /**
-     * @param $email
-     * @param $name
-     * @param $message
+     * Returns given parameters merged with custom values
+     * @param $json
+     * @param array $additionalOptions
      * @return array
      */
-    public function contact($email, $name, $message){
-        $params = array_merge([
-            'name' => $name,
-            'email' => $email,
-            'message' => $message
-        ], $this->customFields);
-
-        return $this->make_call('/content/contact', 'POST', $params);
+    public function getRequestOptions($json, $additionalOptions = [])
+    {
+        return array_merge_recursive(array_merge_recursive($this->options, $additionalOptions), [
+            'json' => array_merge([
+                'host' => $this->host,
+                'language' => $this->language,
+            ], $json),
+            'headers' => [
+                'X-Forwarded-For' => $this->ip ?? $_SERVER['REMOTE_ADDR'],
+            ],
+        ]);
     }
 
     /**
-     * @param $url
-     * @param $name
-     * @param $email
-     * @param $message
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function reportAbuse($url, $name, $email, $message){
-        $params = array_merge([
-            'url' => $url,
-            'name' => $name,
-            'email' => $email,
-            'message' => $message
-        ], $this->customFields);
-
-        return $this->make_call('/content/report-abuse', 'POST', $params);
-    }
-
-    /**
+     * Logs in the user
      * @param $email
      * @param $password
      * @param $fingerprint
      * @param $impersonationToken
      * @return array
      */
-    public function userLogin($email, $password, $fingerprint, $impersonationToken = null){
-        $params = array_merge([
-            'email' => $email,
+    public function userLogin($email, $password, $fingerprint, $impersonationToken = null)
+    {
+        $response = $this->client->post('v1/oauth/access_token', $this->getRequestOptions([
+            'grant_type' => 'password',
+            'username' => $email,
             'password' => $password,
             'fingerprint' => $fingerprint,
-            'impersonation_token' => $impersonationToken
-        ], $this->customFields);
-        return $this->make_call('/user/login', 'POST', $params);
+            'impersonation_token' => $impersonationToken,
+        ]));
+
+        return $this->transform($response);
     }
 
     /**
+     * Signs up the user
      * @param $email
      * @param $password
+     * @param $appName
      * @return array
-     * @throws WebhostApiException
      */
-    public function affiliateLogin($email, $password){
-        $params = array_merge([
+    public function userSignup($email, $password, $appName)
+    {
+        $response = $this->client->post('v1/users', $this->getRequestOptions([
             'email' => $email,
-            'password' => $password
-        ], $this->customFields);
-        return $this->make_call('/affiliate/login', 'POST', $params);
+            'password' => $password,
+            'app_name' => $appName,
+        ]));
+
+        return $this->transform($response);
     }
 
     /**
+     * Creates a password reset token for the given email
+     * @param $email
+     * @return array
+     */
+    public function createUserPasswordResetToken($email)
+    {
+        $response = $this->client->post('v1/users/password-reset', $this->getRequestOptions([
+            'email' => $email,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
+     * Retrieves user ID by a password reset token
+     * @param $token
+     * @return array
+     */
+    public function getUserIdByPasswordResetToken($token)
+    {
+        $response = $this->client->get('v1/user/password-reset/' . $token);
+
+        return $this->transform($response);
+    }
+
+    /**
+     * Sends a 000webhost recommendation email to visitor's friends
      * @param $name
      * @param $email
-     * @param $password
-     * @param $domainType
-     * @param $domain
-     * @param $subdomain
-     * @param int $affiliate_id
-     * @param string $fingerprint
+     * @param $to
      * @return array
      */
-    public function userSignup($name, $email, $password, $domainType, $domain, $subdomain, $affiliate_id = 0, $fingerprint = 'nojs'){
-        $params = array_merge([
-            'name'          => $name,
-            'email'         => $email,
-            'password'      => $password,
-            'domain_type'   => $domainType,
-            'domain'        => $domain,
-            'subdomain'     => $subdomain,
-            'affiliate_id'  => $affiliate_id,
-            'fingerprint'   => $fingerprint
-        ], $this->customFields);
-        return $this->make_call('/user/signup','POST',$params);
+    public function recommend($name, $email, $to)
+    {
+        $response = $this->client->post('v1/mail/recommend', $this->getRequestOptions([
+            'name' => $name,
+            'email' => $email,
+            'to' => $to,
+        ]));
+
+        return $this->transform($response);
     }
 
     /**
+     * Sends an abuse report email
+     * @param $url
      * @param $name
      * @param $email
-     * @param $password
+     * @param $message
      * @return array
-     * @throws WebhostApiException
      */
-    public function affiliateSignup($name,$email,$password){
-        $params = array_merge([
-            'name'                 => $name,
-            'email'                => $email,
-            'password'             => $password,
-        ], $this->customFields);
-        return $this->make_call('/affiliate/signup','POST',$params);
-    }
-
-    /**
-     * @param $email
-     * @param $urlPattern
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function createUserPasswordResetToken($email,$urlPattern){
-        return $this->make_call('/user/password-reset','POST',[
-            'email'         => $email,
-            'url_pattern'   => $urlPattern,
-        ]);
-    }
-
-    /**
-     * @param $email
-     * @param $urlPattern
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function createAffiliatePasswordResetToken($email,$urlPattern){
-        return $this->make_call('/affiliate/password-reset','POST',array_merge([
-            'email'         => $email,
-            'url_pattern'   => $urlPattern,
-        ], $this->customFields));
-    }
-
-    /**
-     * @param $token
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function getUserIdByPasswordResetToken($token){
-        return $this->make_call('/user/password-reset/'.$token,'GET');
-    }
-
-    /**
-     * @param $token
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function getAffiliateIdByPasswordResetToken($token){
-        return $this->make_call('/affiliate/password-reset/'.$token,'GET');
-    }
-
-    /**
-     * @param $token
-     * @param $newPassword
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function resetUserPassword($token, $newPassword){
-        return $this->make_call('/user/password-reset/'.$token,'POST',[
-            'password' => $newPassword
-        ]);
-    }
-
-    /**
-     * @param $token
-     * @param $newPassword
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function resetAffiliatePassword($token, $newPassword){
-        return $this->make_call('/affiliate/password-reset/'.$token,'POST',[
-            'password' => $newPassword
-        ]);
-    }
-
-    /**
-     * @return array
-     * @throws WebhostApiException
-     */
-    public function getActiveServer(){
-        return $this->make_call('/server/active','GET');
-    }
-
-    /**
-     * @return string
-     */
-    private function getIp()
+    public function reportAbuse($url, $name, $email, $message)
     {
-        $address = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : null;
-        if (is_string($address)) {
-            if (strpos($address, ',') !== false) {
-                list($address) = explode(',', $address);
-            }
-        }
-        if (is_null($address)) {
-            $address = $_SERVER['REMOTE_ADDR'];
-        }
-        return $address;
+        $response = $this->client->post('v1/mail/report-abuse', $this->getRequestOptions([
+            'url' => $url,
+            'name' => $name,
+            'email' => $email,
+            'message' => $message
+        ]));
+
+        return $this->transform($response);
     }
 
     /**
-     * @param string $cmd
-     * @param string $method
-     * @param array $post_fields
+     * Transforms the output
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @return array
-     * @throws WebhostApiException
      */
-    private function make_call($cmd, $method = 'GET', $post_fields = array())
+    public function transform(\Psr\Http\Message\ResponseInterface $response)
     {
-        $result = $this->get_url($this->api_url.$cmd, $method, $post_fields, $this->username, $this->password);
-        $this->customFields = [];
-        $result['data'] = json_decode($result['data'],1);
-        return $result;
-    }
-
-    /**
-     * @param array $result
-     * @return array
-     */
-    public function getValidationErrorsForResult($result) {
-        if(isset($result['validation']) && !empty($result['validation'])) {
-            return $result['validation'];
-        }
-        return array();
-    }
-
-    /**
-     * @param string $url
-     * @param string $method
-     * @param array $post_fields
-     * @param string $user
-     * @param string $password
-     * @param int $timeout
-     * @return array
-     * @throws WebhostApiException
-     */
-    private function get_url($url, $method, $post_fields = array(), $user = null, $password = null, $timeout = 30)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)');
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_FAILONERROR, false);
-        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: '.$this->getIp()]);
-
-        if ($user && $password) {
-            curl_setopt($ch, CURLOPT_USERPWD, "$user:$password");
-        }
-
-        switch (strtolower($method)) {
-            case'delete' :
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-                break;
-            case 'post' :
-                $fields = http_build_query($post_fields, null, '&');
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                break;
-            case 'get' :
-                break;
-        }
-
-        $data = curl_exec($ch);
-        if ($data === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new WebhostApiException("Request error: " . $error);
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        switch($httpCode){
-            case 401:
-                throw new WebhostApiException("API authentication failed. HTTP status code: 401", $data);
-            case 500:
-                throw new WebhostApiException("API endpoint encountered an error. HTTP status code: 500", $data);
-        }
-
         return [
-            'data'  => $data,
-            'code'  => $httpCode
+            'data' => json_decode($response->getBody()->getContents(), 1),
+            'code' => $response->getStatusCode(),
         ];
     }
+
 }
