@@ -121,6 +121,20 @@ class WebhostApi
     }
 
     /**
+     * Logs in the user by using a key
+     * @param $key
+     * @return array
+     */
+    public function userLoginByKey($key)
+    {
+        $response = $this->client->post('v1/oauth/access_token/key', $this->getRequestOptions([
+            'key' => $key,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
      * Signs up the user
      * @param $email
      * @param $password
