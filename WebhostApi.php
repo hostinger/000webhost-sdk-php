@@ -94,7 +94,7 @@ class WebhostApi
                 'language' => $this->language,
             ], $json),
             'headers' => [
-                'X-Forwarded-For' => $this->ip ?? $_SERVER['REMOTE_ADDR'],
+                'X-Forwarded-For' => $this->ip != null ? $this->ip : $_SERVER['REMOTE_ADDR'],
             ],
         ]);
     }
