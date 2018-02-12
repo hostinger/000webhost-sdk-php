@@ -217,11 +217,12 @@ class WebhostApi
     }
 
     /**
-     * Suspends Abuser
-     * @param $url
-     * @param $name
-     * @param $email
-     * @param $message
+     * Suspends Abuser App
+     * @param $vhost
+     * @param $suspender
+     * @param $reason
+     * @param int $weight
+     * @param null $metadata
      * @return array
      */
     public function suspendApp($vhost, $suspender, $reason, $weight = 10, $metadata = null)
@@ -238,11 +239,12 @@ class WebhostApi
     }
 
     /**
-     * Suspends Abuser
-     * @param $url
-     * @param $name
-     * @param $email
-     * @param $message
+     * Suspends Abuse
+     * @param $vhost
+     * @param $suspender
+     * @param $reason
+     * @param int $weight
+     * @param null $metadata
      * @return array
      */
     public function suspendUser($vhost, $suspender, $reason, $weight = 10, $metadata = null)
@@ -258,6 +260,11 @@ class WebhostApi
         return $this->transform($response);
     }
 
+    /**
+     * Get app by domain
+     * @param $domain
+     * @return array
+     */
     public function getAppByDomain($domain) {
 
         $response = $this->client->post('v1/apps/vhost', $this->getRequestOptions([
