@@ -217,6 +217,57 @@ class WebhostApi
     }
 
     /**
+     * Suspends Abuser
+     * @param $url
+     * @param $name
+     * @param $email
+     * @param $message
+     * @return array
+     */
+    public function suspendApp($vhost, $suspender, $reason, $weight = 10, $metadata = null)
+    {
+        $response = $this->client->post('v1/apps/sleep', $this->getRequestOptions([
+            'query' => $vhost,
+            'username' => $suspender,
+            'reason' => $reason,
+            'weight' => $weight,
+            'metadata' => $metadata
+        ]);
+
+        return $this->transform($response);
+    }
+
+    /**
+     * Suspends Abuser
+     * @param $url
+     * @param $name
+     * @param $email
+     * @param $message
+     * @return array
+     */
+    public function suspendUser($vhost, $suspender, $reason, $weight = 10, $metadata = null)
+    {
+        $response = $this->client->post('v1/users/abuse', $this->getRequestOptions([
+            'query' => $vhost,
+            'username' => $suspender,
+            'reason' => $reason,
+            'weight' => $weight,
+            'metadata' => $metadata
+        ]));
+
+        return $this->transform($response);
+    }
+
+    public function getAppByDomain($domain) {
+
+        $response = $this->client->post('v1/apps/vhost', $this->getRequestOptions([
+            'domain' => $domain,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
      * Transforms the output
      * @param \Psr\Http\Message\ResponseInterface $response
      * @return array
