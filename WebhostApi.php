@@ -233,7 +233,7 @@ class WebhostApi
             'reason' => $reason,
             'weight' => $weight,
             'metadata' => $metadata
-        ]);
+        ]));
 
         return $this->transform($response);
     }
@@ -268,7 +268,7 @@ class WebhostApi
     public function getAppByDomain($domain)
     {
 
-        $response = $this->client->post('v1/apps/vhost', $this->getRequestOptions([
+        $response = $this->client->get('v1/apps/vhost', $this->getRequestOptions([
             'domain' => $domain,
         ]));
 
