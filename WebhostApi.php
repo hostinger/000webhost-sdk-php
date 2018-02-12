@@ -217,6 +217,65 @@ class WebhostApi
     }
 
     /**
+     * Suspends Abuser App
+     * @param $vhost
+     * @param $suspender
+     * @param $reason
+     * @param int $weight
+     * @param null $metadata
+     * @return array
+     */
+    public function suspendApp($vhost, $suspender, $reason, $weight = 10, $metadata = null)
+    {
+        $response = $this->client->post('v1/apps/sleep', $this->getRequestOptions([
+            'query' => $vhost,
+            'username' => $suspender,
+            'reason' => $reason,
+            'weight' => $weight,
+            'metadata' => $metadata
+        ]);
+
+        return $this->transform($response);
+    }
+
+    /**
+     * Suspends Abuse
+     * @param $vhost
+     * @param $suspender
+     * @param $reason
+     * @param int $weight
+     * @param null $metadata
+     * @return array
+     */
+    public function suspendUser($vhost, $suspender, $reason, $weight = 10, $metadata = null)
+    {
+        $response = $this->client->post('v1/users/abuse', $this->getRequestOptions([
+            'query' => $vhost,
+            'username' => $suspender,
+            'reason' => $reason,
+            'weight' => $weight,
+            'metadata' => $metadata
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
+     * Get app by domain
+     * @param $domain
+     * @return array
+     */
+    public function getAppByDomain($domain)
+    {
+
+        $response = $this->client->post('v1/apps/vhost', $this->getRequestOptions([
+            'domain' => $domain,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
      * Transforms the output
      * @param \Psr\Http\Message\ResponseInterface $response
      * @return array
