@@ -268,7 +268,7 @@ class WebhostApi
     public function getAppByDomain($domain)
     {
 
-        $response = $this->client->get('v1/apps/vhost', $this->getRequestOptions([
+        $response = $this->client->get('v1/app/vhost', $this->getRequestOptions([
             'domain' => $domain,
         ]));
 
