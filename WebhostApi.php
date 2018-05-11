@@ -274,6 +274,19 @@ class WebhostApi
 
         return $this->transform($response);
     }
+    
+    /**
+     * Get apps by user id
+     * @param $userId
+     * @return array
+     */
+    public function getAppsByUserId($userId)
+    {
+
+        $response = $this->client->get('v1/user/apps/'.$userId, $this->getRequestOptions([]));
+
+        return $this->transform($response);
+    }
 
     /**
      * Transforms the output
