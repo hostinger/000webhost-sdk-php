@@ -216,6 +216,17 @@ class WebhostApi
         return $this->transform($response);
     }
 
+    public function contact($name, $email, $message)
+    {
+        $response = $this->client->post('v1/mail/contact', $this->getRequestOptions([
+            'name' => $name,
+            'email' => $email,
+            'message' => $message,
+        ]));
+
+        return $this->transform($response);
+    }
+
     /**
      * Suspends Abuser App
      * @param $vhost
