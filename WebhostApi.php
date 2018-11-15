@@ -132,7 +132,7 @@ class WebhostApi
         $response = $this->client->post('v1/oauth/access_token', $this->getRequestOptions([
             'grant_type' => 'social',
             'username' => $email,
-            'identifier' => $identifier,
+            'password' => $identifier,
             'provider' => $provider,
         ]));
 
@@ -174,15 +174,15 @@ class WebhostApi
     /**
      * Signs up the user with social login
      * @param $email
-     * @param $password
-     * @param $appName
+     * @param $identifier
+     * @param $provider
      * @return array
      */
     public function userSignupSocial($email, $identifier, $provider)
     {
         $response = $this->client->post('v1/users', $this->getRequestOptions([
             'email' => $email,
-            'identifier' => $identifier,
+            'password' => $identifier,
             'social_login' => $provider,
         ]));
 
