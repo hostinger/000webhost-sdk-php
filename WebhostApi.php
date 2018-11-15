@@ -124,16 +124,14 @@ class WebhostApi
      * Logs in the user with social login
      * @param $email
      * @param $identifier
-     * @param $provider
      * @return array
      */
-    public function userLoginSocial($email, $identifier, $provider)
+    public function userLoginSocial($email, $identifier)
     {
         $response = $this->client->post('v1/oauth/access_token', $this->getRequestOptions([
             'grant_type' => 'social',
             'username' => $email,
-            'password' => $identifier,
-            'provider' => $provider,
+            'password' => $identifier
         ]));
 
         return $this->transform($response);
