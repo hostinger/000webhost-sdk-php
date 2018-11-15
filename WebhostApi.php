@@ -121,6 +121,25 @@ class WebhostApi
     }
 
     /**
+     * Logs in the user with social login
+     * @param $email
+     * @param $identifier
+     * @param $provider
+     * @return array
+     */
+    public function userLoginSocial($email, $identifier, $provider)
+    {
+        $response = $this->client->post('v1/oauth/access_token', $this->getRequestOptions([
+            'grant_type' => 'social',
+            'username' => $email,
+            'identifier' => $identifier,
+            'provider' => $provider,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
      * Logs in the user by using a key
      * @param $key
      * @return array
@@ -147,6 +166,24 @@ class WebhostApi
             'email' => $email,
             'password' => $password,
             'app_name' => $appName,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
+     * Signs up the user with social login
+     * @param $email
+     * @param $password
+     * @param $appName
+     * @return array
+     */
+    public function userSignupSocial($email, $identifier, $provider)
+    {
+        $response = $this->client->post('v1/users', $this->getRequestOptions([
+            'email' => $email,
+            'identifier' => $identifier,
+            'social_login' => $provider,
         ]));
 
         return $this->transform($response);
