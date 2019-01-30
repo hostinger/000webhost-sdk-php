@@ -126,12 +126,13 @@ class WebhostApi
      * @param $identifier
      * @return array
      */
-    public function userLoginSocial($email, $identifier)
+    public function userLoginSocial($email, $identifier, $impersonationToken = null)
     {
         $response = $this->client->post('v1/oauth/access_token', $this->getRequestOptions([
             'grant_type' => 'social',
             'username' => $email,
-            'password' => $identifier
+            'password' => $identifier,
+            'impersonation_token' => $impersonationToken,
         ]));
 
         return $this->transform($response);
