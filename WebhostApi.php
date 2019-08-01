@@ -103,6 +103,22 @@ class WebhostApi
      * Logs in the user
      * @param $email
      * @param $password
+     * @return array
+     */
+    public function getZyroLogin($email, $password)
+    {
+        $response = $this->client->post('v1/zyro/login', $this->getRequestOptions([
+            'username' => $email,
+            'password' => $password,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
+     * Logs in the user
+     * @param $email
+     * @param $password
      * @param $fingerprint
      * @param $impersonationToken
      * @return array
