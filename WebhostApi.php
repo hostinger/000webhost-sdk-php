@@ -108,7 +108,7 @@ class WebhostApi
     public function getZyroLogin($email, $password)
     {
         $response = $this->client->post('v1/zyro/login', $this->getRequestOptions([
-            'username' => $email,
+            'email' => $email,
             'password' => $password,
         ]));
 
