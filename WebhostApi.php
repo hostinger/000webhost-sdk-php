@@ -116,6 +116,18 @@ class WebhostApi
     }
 
     /**
+     * Checks if provided ip is proxy
+     * @param $ip
+     * @return array
+     */
+    public function checkIfProxy($ip)
+    {
+        $response = $this->client->get('/v1/proxy-check/'.$ip);
+
+        return $this->transform($response);
+    }
+
+    /**
      * Logs in the user
      * @param $email
      * @param $password
