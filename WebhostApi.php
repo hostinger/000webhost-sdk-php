@@ -122,7 +122,7 @@ class WebhostApi
      */
     public function checkIfProxy($ip)
     {
-        $response = $this->client->get('/v1/proxy-check/'.$ip);
+        $response = $this->client->get('/v1/proxy-check/' . $ip, $this->getRequestOptions([]));
 
         return $this->transform($response);
     }
