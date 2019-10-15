@@ -128,6 +128,20 @@ class WebhostApi
     }
 
     /**
+     * Checks if email is taken
+     * @param $email
+     * @return array
+     */
+    public function validateEmail($email)
+    {
+        $response = $this->client->post('v1/validate-email', $this->getRequestOptions([
+            'username' => $email
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
      * Logs in the user
      * @param $email
      * @param $password
