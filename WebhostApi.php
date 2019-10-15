@@ -135,7 +135,7 @@ class WebhostApi
     public function validateEmail($email)
     {
         $response = $this->client->post('v1/validate-email', $this->getRequestOptions([
-            'username' => $email
+            'email' => $email
         ]));
 
         return $this->transform($response);
