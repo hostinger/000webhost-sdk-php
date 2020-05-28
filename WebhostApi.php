@@ -59,6 +59,24 @@ class WebhostApi
     }
 
     /**
+     * Sets Host header
+     * @param $host
+     * @return $this
+     */
+    public function setHostHeader($host)
+    {
+        if($host) {
+            $this->options = array_merge_recursive($this->options, [
+                'headers' => [
+                    'Host' => $host
+                ],
+            ]);
+        }
+        return $this;
+    }
+
+
+    /**
      * Sets the origin language
      * @param $language
      * @return $this
@@ -370,7 +388,7 @@ class WebhostApi
 
         return $this->transform($response);
     }
-    
+
     /**
      * Get apps by user id
      * @param $userId
