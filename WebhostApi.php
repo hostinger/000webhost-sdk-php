@@ -275,6 +275,18 @@ class WebhostApi
     }
 
     /**
+     * Verifies user email by provided token
+     * @param $token
+     * @return array
+     */
+    public function userVerifyEmail($token)
+    {
+        $response = $this->client->get('v1/users/email/verify/' . $token);
+
+        return $this->transform($response);
+    }
+
+    /**
      * Sends a 000webhost recommendation email to visitor's friends
      * @param $name
      * @param $email
