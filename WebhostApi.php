@@ -281,7 +281,7 @@ class WebhostApi
      */
     public function userVerifyEmail($token)
     {
-        $response = $this->client->get('v1/users/email/verify/' . $token);
+        $response = $this->client->get('v1/users/email/verify/' . $token, $this->getRequestOptions([]));
 
         return $this->transform($response);
     }
