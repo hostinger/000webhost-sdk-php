@@ -287,7 +287,7 @@ class WebhostApi
     }
 
     /**
-     * Verifies user email by provided token
+     * Updates user password by provided token
      * @param $token
      * @return array
      */
