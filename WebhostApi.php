@@ -287,6 +287,20 @@ class WebhostApi
     }
 
     /**
+     * Updates user password by provided token
+     * @param $token
+     * @return array
+     */
+    public function userPasswordReset($token, $password)
+    {
+        $response = $this->client->patch('v1/users/password-reset/' . $token, $this->getRequestOptions([
+            'password' => $password,
+        ]));
+
+        return $this->transform($response);
+    }
+
+    /**
      * Sends a 000webhost recommendation email to visitor's friends
      * @param $name
      * @param $email
